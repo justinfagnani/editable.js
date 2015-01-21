@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Editable Demo</title>
+    <meta charset="UTF-8">
+    <script src="editable.js"></script>
+    <script src="src/PositionWalker.js"></script>
+    <script src="src/CursorManager.js"></script>
+    <style>
+      #d4 {
+        border: solid 1px blue;
+        width: 200px;
+      }
+      #glass {
+        position: absolute;
+        opacity: .5;
+        /*background: #aaf;*/
+      }
+      #caret {
+        box-sizing: border-box;
+        position: absolute;
+        background: rgba(32, 32, 255, .4);
+        border-left: solid 1px black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="glass"></div>
+    <div id="caret"></div>
+    <div id="d4">This is some longer content, with <span>spans</span>, that will
+      wrap because the containing div has a narrow width. It's used to test cursor
+      navigation with PositionState.
+    </div>
+    <script>
+
+var d = document.querySelector("#d4");
+var glass = document.querySelector("#glass");
+var caret = document.querySelector("#caret");
+var dBounds = d.getBoundingClientRect();
+
+glass.style.top = dBounds.top + 'px';
+glass.style.left = dBounds.left + 'px';
+glass.style.width = dBounds.width + 'px';
+glass.style.height = dBounds.height + 'px';
+
+var cursorManager = new CursorManager(d4);
+updateCaret();
+
+function updateCaret() {
+  var range = cursorManager.walker.getCaretRange();
+  var rects = range.getClientRects();
+  if (rects.length > 0) {
+    var rBounds = rects[0];
+    caret.style.top = rBounds.top + 'px';
+    caret.style.left = rBounds.left + 'px';
+    if (rBounds.width < 2) {
+      caret.style.width = 4 + 'px';
+    } else {
+      caret.style.width = rBounds.width + 'px';
+    }
+    caret.style.height = rBounds.height + 'px';
+  }
+}
+
+document.body.addEventListener('keydown', function(event) {
+  switch(event.keyCode) {
+    case 37: // left
+      if (event.metaKey) {
+        event.preventDefault();
+        cursorManager.beginningOfLine();
+      } else {
+        cursorManager.back();
+      }
+      updateCaret();
+      break;
+    case 38: // up
+      cursorManager.up();
+      updateCaret();
+      break;
+    case 39: // right
+      if (event.metaKey) {
+        event.preventDefault();
+        cursorManager.endOfLine();
+      } else {
+        cursorManager.forward();
+      }
+      updateCaret();
+      break;
+    case 40: // down
+      cursorManager.down();
+      updateCaret();
+      break;
+    case 8: // backspace
+    case 46: // delete
+      event.preventDefault();
+      break;
+  }
+});
+
+    </script>
+  </body>
+</html>

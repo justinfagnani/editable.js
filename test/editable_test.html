@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Editable Test</title>
+    <meta charset="UTF-8">
+    <script src="../editable.js"></script>
+    <script src="../src/PositionWalker.js"></script>
+    <script src="../bower_components/mocha/mocha.js"></script>
+    <script src="../bower_components/chai/chai.js"></script>
+    <link rel="stylesheet" href="../bower_components/mocha/mocha.css"/>
+    <style>
+      #d4 {
+        border: solid 1px blue;
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="d1"></div>
+    <div id="d2">abc</div>
+    <div id="d3">abc<span>def</span>ghi</div>
+    <div id="d4">
+      This is some longer content, with <span>spans</span>, that will
+      wrap because the containing div has a narrow width. It's used to test cursor
+      navigation with PositionState.
+    </div>
+    <script>
+
+(function() {
+  mocha.setup('tdd');
+  mocha.checkLeaks();
+
+  var assert = chai.assert;
+
+  var d1 = document.querySelector('#d1');
+  var d2 = document.querySelector('#d2');
+  var d3 = document.querySelector('#d3');
+
+  suite('getPosition', function() {
+
+    test('works with an empty element', function () {
+      var p = getPosition(d1, 0);
+      assert.equal(p.node, d1);
+      assert.equal(p.offset, 0);
+    });
+
+    test('works with a single text node', function () {
+      var text = d2.firstChild;
+
+      var p1 = getPosition(d2, 0);
+      assert.equal(p1.node, text);
+      assert.equal(p1.offset, 0);
+
+      var p2 = getPosition(d2, 2);
+      assert.equal(p2.node, text);
+      assert.equal(p2.offset, 2);
+    });
+
+    test('can get the position after the last character', function () {
+      var text = d2.firstChild;
+
+      var p = getPosition(d2, 3);
+      assert.equal(p.node, text);
+      assert.equal(p.offset, 3);
+    });
+
+    test('works with inline elements', function () {
+      var text1 = d3.childNodes[0];
+      var text2 = d3.childNodes[1].firstChild;
+      var text3 = d3.childNodes[2];
+
+      var p1 = getPosition(d3, 0);
+      assert.equal(p1.node, text1);
+      assert.equal(p1.offset, 0);
+
+      var p2 = getPosition(d3, 3);
+      assert.equal(p2.node, text2);
+      assert.equal(p2.offset, 0);
+
+      var p3 = getPosition(d3, 6);
+      assert.equal(p3.node, text3);
+      assert.equal(p3.offset, 0);
+
+    });
+
+  });
+
+  suite('getRange', function() {
+
+    test('returns a Range from a single text node', function() {
+      var text = d2.firstChild;
+      var r = getRange(d2, 0, 1);
+      assert.equal(r.startContainer, text);
+      assert.equal(r.startOffset, 0);
+      assert.equal(r.endContainer, text);
+      assert.equal(r.endOffset, 1);
+    });
+
+    test('returns a Range from an element with inline elements', function() {
+      var text1 = d3.childNodes[0];
+      var text2 = d3.childNodes[1].firstChild;
+      var text3 = d3.childNodes[2];
+
+      var r = getRange(d3, 1, 7);
+      assert.equal(r.startContainer, text1);
+      assert.equal(r.startOffset, 1);
+      assert.equal(r.endContainer, text3);
+      assert.equal(r.endOffset, 1);
+    });
+
+  });
+
+  mocha.run();
+
+})();
+    </script>
+  </body>
+</html>
