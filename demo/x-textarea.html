@@ -18,17 +18,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div id="content"></div>
   </template>
   <style>
-    x-textarea {
+    :host {
       display: block;
       position: relative;
       min-height: 2em;
       min-width: 22em;
       border: 1px solid #888;
     }
-    x-textarea:focus {
+    :host:focus {
       border: 1px solid blue;
     }
-    x-textarea > #glass {
+    #glass {
 /*          opacity: 0.5;
       background: blue;
 */          position: absolute;
@@ -37,15 +37,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       right: 0;
       bottom: 0;
     }
-    x-textarea > #caret {
+    #caret {
       box-sizing: border-box;
       position: absolute;
       background: rgba(32, 32, 255, .4);
     }
-    x-textarea > #caret.on {
+    #caret.on {
       border-left: solid 1px black;
     }
-    x-textarea > #content {
+    #content {
       height: 100%;
     }
   </style>
