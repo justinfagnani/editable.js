@@ -3,10 +3,11 @@
   <head>
     <title>PositionWalker Test</title>
     <meta charset="UTF-8">
+    <link rel="import" href="../../imd/imd.html">
     <script src="../src/PositionWalker.js"></script>
-    <script src="../bower_components/mocha/mocha.js"></script>
-    <script src="../bower_components/chai/chai.js"></script>
-    <link rel="stylesheet" href="../bower_components/mocha/mocha.css"/>
+    <script src="../../mocha/mocha.js"></script>
+    <script src="../../chai/chai.js"></script>
+    <link rel="stylesheet" href="../../mocha/mocha.css"/>
     <style>
       #d4 {
         border: solid 1px blue;
@@ -26,7 +27,9 @@
     </div>
     <script>
 
-(function() {
+define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
+  console.assert(PositionWalker != null);
+  
   mocha.setup('tdd');
   mocha.checkLeaks();
 
@@ -212,7 +215,7 @@
 
   mocha.run();
 
-})();
+});
     </script>
   </body>
 </html>

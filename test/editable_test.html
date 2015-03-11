@@ -3,11 +3,12 @@
   <head>
     <title>Editable Test</title>
     <meta charset="UTF-8">
-    <script src="../editable.js"></script>
-    <script src="../src/PositionWalker.js"></script>
-    <script src="../bower_components/mocha/mocha.js"></script>
-    <script src="../bower_components/chai/chai.js"></script>
-    <link rel="stylesheet" href="../bower_components/mocha/mocha.css"/>
+    <link rel="import" href="../../imd/imd.js">
+    <link rel="import" href="../editable.html">
+
+    <script src="../../mocha/mocha.js"></script>
+    <script src="../../chai/chai.js"></script>
+    <link rel="stylesheet" href="../../mocha/mocha.css"/>
     <style>
       #d4 {
         border: solid 1px blue;
@@ -27,7 +28,12 @@
     </div>
     <script>
 
-(function() {
+define(['editable', 'chai'], function(editable, chai) {
+  'use strict';
+  
+  var getPosition = editable.getPosition;
+  var getRange = editable.getRange;
+
   mocha.setup('tdd');
   mocha.checkLeaks();
 
