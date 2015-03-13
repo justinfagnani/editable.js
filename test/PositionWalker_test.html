@@ -192,6 +192,45 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       assert.equal(p.localOffset, 2);
     });
 
+    test('tracks a single char added to an empty div', function() {
+      var div = document.createElement('div');
+      var p = new PositionWalker(div);
+      var text = document.createTextNode(' ');
+      div.appendChild(text);
+
+      p.refresh();
+      assert.equal(p.isAtBeginning, true);
+      assert.equal(p.isAtEnd, false);
+
+      p.nextPosition();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, true);
+    });
+
+    test('tracks a second char added to a div', function() {
+      var div = document.createElement('div');
+      var text = document.createTextNode(' ');
+      div.appendChild(text);
+
+      var p = new PositionWalker(div);
+      assert.equal(p.isAtBeginning, true);
+      assert.equal(p.isAtEnd, false);
+
+      p.nextPosition();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, true);
+      var text2 = document.createTextNode('_');
+      div.appendChild(text2);
+
+      p.refresh();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, false);
+
+      p.nextPosition();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, true);
+    });
+
   });
 
   mocha.run();

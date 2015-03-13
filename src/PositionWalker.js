@@ -195,7 +195,18 @@
      * we need to clone the container at some point.
      */
     refresh() {
-      console.log('refresh', this);
+      // were we in an empty container before?
+      if (this.currentNode === this.container) {
+        // re-initialize
+        this.currentNode = this.getNextNode() || this.currentNode;
+      }
+
+      // were we at the end of content before?
+      if (this.currentNode.nodeType === 3 &&
+          this.localOffset === this.currentNode.nodeValue.length) {
+        // see if new content was added
+        this.nextPosition();
+      }
     }
   }
 
