@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
- define('editable/PositionWalker', function() {
+ define('editable/PositionWalker', ['editable'], function(editable) {
    'use strict';
 
  /**
@@ -16,8 +16,8 @@
   * current node and an offset within that node.
   *
   * PositionWalker is similar to NodeIterator with the addition of the
-  * offset tracking and the ability to move forward and backward by character
-  * position within a node.
+  * offset tracking, the ability to move forward and backward by character
+  * position within a node, and the ability to clone.
   *
   * PositionWalker is not as robust to changes in
   * the underlying DOM as NodeIterator, because NodeIterator relies on being
@@ -30,18 +30,20 @@
     constructor(node) {
       this.container = node;
       this.currentNode = node;
-      this.offset = 0;
       this.localOffset = 0;
-      this.isAtEnd = false;
-      this.isAtBeginning = true;
 
       // initialize state to first text position
-      var n = this.getNextNode();
-      if (n == null) {
-        this.isAtEnd = true;
-      } else {
-        this.currentNode = n;
-      }
+      this.currentNode = this.getNextNode() || this.currentNode;
+    }
+
+    get isAtBeginning() {
+      return (this.localOffset === 0 && this.getPreviousNode() === null);
+    }
+
+    get isAtEnd() {
+      return (this.currentNode.nodeType !== 3 ||
+            this.localOffset === this.currentNode.nodeValue.length) &&
+          this.getNextNode() === null;
     }
 
     getNextNode() {
@@ -72,17 +74,9 @@
     nextNode() {
       var n = this.currentNode;
       if (n.nodeType == 3) {
-        this.offset += n.nodeValue.length - this.localOffset;
         this.localOffset = 0;
       }
-      n = this.getNextNode();
-      if (n == null) {
-        // TODO: test when we're in the last node, but not at the end of it
-        this.isAtEnd = true;
-      } else {
-        this.isAtBeginning = false;
-        this.currentNode = n;
-      }
+      this.currentNode = this.getNextNode() || this.currentNode;
     }
 
     nextPosition() {
@@ -93,12 +87,6 @@
       if (this.currentNode.nodeType == 3 &&
           this.localOffset < this.currentNode.nodeValue.length - 1) {
         this.localOffset++;
-        this.offset++;
-        this.isAtBeginning = false;
-        if (this.localOffset == this.currentNode.nodeValue.length
-            && this.getNextNode() == null) {
-          this.isAtEnd = true;
-        }
         return;
       }
 
@@ -109,8 +97,6 @@
           // but for the last text node we want to position at the end
           // of the node instead of the beginning of the next node.
           this.localOffset = this.currentNode.nodeValue.length;
-          this.offset++;
-          this.isAtEnd = true;
           return;
         } else if (n.nodeType == 3) {
           this.nextNode();
@@ -148,17 +134,9 @@
     previousNode() {
       var n = this.currentNode;
       if (n.nodeType == 3) {
-        this.offset -= this.localOffset;
         this.localOffset = 0;
       }
-      n = this.getPreviousNode();
-      if (n == null) {
-        // TODO: test when we're in the last node, but not at the end of it
-        this.isAtBeginning = true;
-      } else {
-        this.isAtEnd = false;
-        this.currentNode = n;
-      }
+      this.currentNode = this.getPreviousNode() || this.currentNode;
     }
 
     previousPosition() {
@@ -168,11 +146,6 @@
 
       if (this.currentNode.nodeType == 3 && this.localOffset > 0) {
         this.localOffset--;
-        this.offset--;
-        this.isAtEnd = false;
-        if (this.localOffset == 0 && this.getPreviousNode() == null) {
-          this.isAtBeginning = true;
-        }
         return;
       }
 
@@ -180,7 +153,6 @@
         var n = this.getPreviousNode();
         if (n != null && n.nodeType == 3) {
           this.localOffset = n.nodeValue.length - 1;
-          this.offset--;
           this.currentNode = n;
           return;
         } else {
@@ -192,7 +164,6 @@
     clone() {
       var c = new PositionWalker(this.container);
       c.currentNode = this.currentNode;
-      c.offset = this.offset;
       c.localOffset = this.localOffset;
       return c;
     }
@@ -214,6 +185,17 @@
       }
       r.setEnd(this.currentNode, endOffset);
       return r;
+    }
+
+    /**
+     * TODO: if the current node has been removed from the container, or if the
+     * current node is a text node and has been modified, then we either need to
+     * choose a new current node, and/or change the localOffset. To do this
+     * correctly we really want to keep track of the state before the edit, so
+     * we need to clone the container at some point.
+     */
+    refresh() {
+      console.log('refresh', this);
     }
   }
 

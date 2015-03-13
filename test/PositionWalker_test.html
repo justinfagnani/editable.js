@@ -4,6 +4,7 @@
     <title>PositionWalker Test</title>
     <meta charset="UTF-8">
     <link rel="import" href="../../imd/imd.html">
+    <script src="../editable.js"></script>
     <script src="../src/PositionWalker.js"></script>
     <script src="../../mocha/mocha.js"></script>
     <script src="../../chai/chai.js"></script>
@@ -29,7 +30,7 @@
 
 define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
   console.assert(PositionWalker != null);
-  
+
   mocha.setup('tdd');
   mocha.checkLeaks();
 
@@ -45,7 +46,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
     test('starts with offset 0 in container for an empty div', function() {
       var p = new PositionWalker(d1);
       assert.equal(p.currentNode, d1);
-      assert.equal(p.offset, 0);
       assert.equal(p.localOffset, 0);
       assert.equal(p.isAtBeginning, true);
       assert.equal(p.isAtEnd, true);
@@ -55,7 +55,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       var p = new PositionWalker(d1);
       p.nextNode();
       assert.equal(p.currentNode, d1);
-      assert.equal(p.offset, 0);
       assert.equal(p.localOffset, 0);
       assert.equal(p.isAtBeginning, true);
       assert.equal(p.isAtEnd, true);
@@ -65,7 +64,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       var p = new PositionWalker(d1);
       p.nextPosition();
       assert.equal(p.currentNode, d1);
-      assert.equal(p.offset, 0);
       assert.equal(p.localOffset, 0);
       assert.equal(p.isAtBeginning, true);
       assert.equal(p.isAtEnd, true);
@@ -75,7 +73,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       var p = new PositionWalker(d1);
       p.previousNode();
       assert.equal(p.currentNode, d1);
-      assert.equal(p.offset, 0);
       assert.equal(p.localOffset, 0);
       assert.equal(p.isAtBeginning, true);
       assert.equal(p.isAtEnd, true);
@@ -85,7 +82,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       var p = new PositionWalker(d1);
       p.previousPosition();
       assert.equal(p.currentNode, d1);
-      assert.equal(p.offset, 0);
       assert.equal(p.localOffset, 0);
       assert.equal(p.isAtBeginning, true);
       assert.equal(p.isAtEnd, true);
@@ -97,9 +93,7 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       var p = new PositionWalker(d3);
       assert.equal(p.currentNode, t1);
       p.nextNode();
-      console.log(p.currentNode);
       assert.equal(p.currentNode, span);
-      assert.equal(p.offset, 3);
       assert.equal(p.localOffset, 0);
       assert.equal(p.isAtBeginning, false);
       assert.equal(p.isAtEnd, false);
@@ -109,13 +103,11 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       var p = new PositionWalker(d2);
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 1);
       assert.equal(p.localOffset, 1);
       assert.equal(p.isAtBeginning, false);
       assert.equal(p.isAtEnd, false);
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 2);
       assert.equal(p.localOffset, 2);
     });
 
@@ -125,7 +117,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       p.nextPosition();
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 3);
       assert.equal(p.localOffset, 3);
       assert.equal(p.isAtEnd, true);
     });
@@ -137,7 +128,6 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       p.nextPosition();
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 3);
       assert.equal(p.localOffset, 3);
       assert.equal(p.isAtEnd, true);
     });
@@ -148,12 +138,10 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       p.nextPosition();
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 3);
       assert.equal(p.localOffset, 3);
       assert.equal(p.isAtEnd, true);
       p.previousPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 2);
       assert.equal(p.localOffset, 2);
       assert.equal(p.isAtEnd, false);
     });
@@ -165,19 +153,16 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       p.nextPosition();
       assert.equal(p.currentNode, d3.childNodes[1].firstChild);
       assert.equal(p.localOffset, 0);
-      assert.equal(p.offset, 3);
     });
 
     test('previousPosition() moves back in a text node', function() {
       var p = new PositionWalker(d2);
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 1);
       assert.equal(p.localOffset, 1);
 
       p.previousPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 0);
       assert.equal(p.localOffset, 0);
     });
 
@@ -187,12 +172,10 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       p.nextPosition();
       p.nextPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 3);
       assert.equal(p.localOffset, 3);
 
       p.previousPosition();
       assert.equal(p.currentNode, d2.firstChild);
-      assert.equal(p.offset, 2);
       assert.equal(p.localOffset, 2);
     });
 
@@ -203,11 +186,9 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       p.nextPosition();
       assert.equal(p.currentNode, d3.childNodes[1].firstChild);
       assert.equal(p.localOffset, 0);
-      assert.equal(p.offset, 3);
 
       p.previousPosition();
       assert.equal(p.currentNode, d3.firstChild);
-      assert.equal(p.offset, 2);
       assert.equal(p.localOffset, 2);
     });
 
