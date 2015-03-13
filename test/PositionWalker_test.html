@@ -231,6 +231,78 @@ define(['editable/PositionWalker', 'chai'], function(PositionWalker, chai) {
       assert.equal(p.isAtEnd, true);
     });
 
+    test('handles the only text node being removed', function() {
+      var div = document.createElement('div');
+      var text = document.createTextNode('1');
+      div.appendChild(text);
+
+      var p = new PositionWalker(div);
+      assert.equal(p.isAtBeginning, true);
+      assert.equal(p.isAtEnd, false);
+      assert.equal(p.localOffset, 0);
+
+      text.remove();
+      p.refresh();
+
+      assert.equal(p.isAtBeginning, true);
+      assert.equal(p.isAtEnd, true);
+      assert.equal(p.currentNode, div);
+      assert.equal(p.localOffset, 0);
+    });
+
+    test('move to next node when currentNode is removed', function() {
+      var div = document.createElement('div');
+      var text1 = document.createTextNode('1');
+      var text2 = document.createTextNode('2');
+      div.appendChild(text1);
+      div.appendChild(text2);
+
+      var p = new PositionWalker(div);
+      assert.equal(p.isAtBeginning, true);
+      assert.equal(p.isAtEnd, false);
+      assert.equal(p.currentNode, text1);
+      assert.equal(p.localOffset, 0);
+
+      text1.remove();
+      p.refresh();
+      assert.equal(p.isAtBeginning, true);
+      assert.equal(p.isAtEnd, false);
+      assert.equal(p.currentNode, text2);
+      assert.equal(p.localOffset, 0);
+
+      p.nextPosition();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, true);
+      assert.equal(p.currentNode, text2);
+      assert.equal(p.localOffset, 1);
+    });
+
+    test('move to previous node when currentNode is removed', function() {
+      var div = document.createElement('div');
+      var text1 = document.createTextNode('1');
+      var text2 = document.createTextNode('2');
+      div.appendChild(text1);
+      div.appendChild(text2);
+
+      var p = new PositionWalker(div);
+      assert.equal(p.currentNode, text1);
+      assert.equal(p._currentNodeClone.nodeValue, '1');
+
+      p.nextPosition();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, false);
+      assert.equal(p.currentNode, text2);
+      assert.equal(p.localOffset, 0);
+      assert.equal(p._currentNodeClone.nodeValue, '2');
+
+      text2.remove();
+      p.refresh();
+      assert.equal(p.isAtBeginning, false);
+      assert.equal(p.isAtEnd, true);
+      assert.equal(p.currentNode, text1);
+      assert.equal(p.localOffset, 1);
+    });
+
   });
 
   mocha.run();
