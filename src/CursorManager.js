@@ -8,12 +8,13 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-define('editable/CursorManager', ['editable/PositionWalker'], function(PositionWalker) {
+define('editable/CursorManager', ['editable/PositionWalker'],
+    function(PositionWalker) {
   'use strict';
 
   return class CursorManager {
 
-    constructor (container) {
+    constructor(container) {
       this.container = container;
       this.walker = new PositionWalker(container);
       this.updateCaretX();
@@ -57,7 +58,7 @@ define('editable/CursorManager', ['editable/PositionWalker'], function(PositionW
         this.walker.nextPosition();
       }
       this.updateCaretX();
-    };
+    }
 
     beginningOfLine() {
       while (!this.walker.isAtBeginning
@@ -65,7 +66,7 @@ define('editable/CursorManager', ['editable/PositionWalker'], function(PositionW
         this.walker.previousPosition();
       }
       this.updateCaretX();
-    };
+    }
 
     down() {
       // To move the cursor down a line we move forward until we think we're on

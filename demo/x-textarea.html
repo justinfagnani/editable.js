@@ -64,50 +64,50 @@ define(['editable/CursorManager', 'editable/PositionWalker'],
       console.log("x-textarea!");
       this.cursorManager = new CursorManager(this.$.content);
       this.tabIndex = 0;
-      var _this = this;
-      // setInterval(function() {
-      //   _this.$.caret.classList.toggle('on');
-      // }, 1000);
-      this.updateCaret();
+      setInterval(function() {
+        this.$.caret.classList.toggle('on');
+      }.bind(this), 1000);
+      this._update();
     },
 
     listeners: {
       'keydown': 'keydown',
+      'keypress': 'keypress',
       'click': 'click',
     },
 
     click: function(event) {
-      console.log('click');
+      // console.log('click');
     },
 
     keydown: function(event) {
-      console.log('keydown');
+      // console.log('keydown', event.keyCode);
       switch(event.keyCode) {
         case 37: // left
           if (event.metaKey) {
             event.preventDefault();
-            cursorManager.beginningOfLine();
+            this.cursorManager.beginningOfLine();
           } else {
-            cursorManager.back();
+            this.cursorManager.back();
           }
-          updateCaret();
+          this._update();
           break;
         case 38: // up
-          cursorManager.up();
-          updateCaret();
+          this.cursorManager.up();
+          this._update();
           break;
         case 39: // right
           if (event.metaKey) {
             event.preventDefault();
-            cursorManager.endOfLine();
+            this.cursorManager.endOfLine();
           } else {
-            cursorManager.forward();
+            this.cursorManager.forward();
           }
-          updateCaret();
+          this._update();
           break;
         case 40: // down
-          cursorManager.down();
-          updateCaret();
+          this.cursorManager.down();
+          this._update();
           break;
         case 8: // backspace
         case 46: // delete
@@ -116,14 +116,42 @@ define(['editable/CursorManager', 'editable/PositionWalker'],
       }
     },
 
-    updateCaret: function() {
+    keypress: function(event) {
+      var keyCode = event.keyCode;
+      var char = String.fromCharCode(keyCode);
+      var range = this.cursorManager.walker.getRange();
+      // console.log('keypress ', char, range);
+      var node = document.createTextNode(char);
+      console.log('before', this.cursorManager.walker);
+      range.insertNode(node);
+      this.cursorManager.walker.refresh();
+      this.cursorManager.forward();
+      console.log('after', this.cursorManager.walker);
+      this._update();
+    },
+
+    _textAnchor: document.createTextNode('\u00A0'),
+
+    _update: function() {
+      var content = this.$.content;
+      var length = content.textContent.length;
+      console.log('_update', length);
+      if (length == 0) {
+        console.log('adding nbsp');
+        content.appendChild(this._textAnchor);
+      }
+
+      // console.log('walker', this.cursorManager.walker);
       var range = this.cursorManager.walker.getCaretRange();
       var rects = range.getClientRects();
-      console.log("updateCaret", range.cloneContents().textContent, rects);
+      console.log("_update", range, range.cloneContents().textContent, rects);
+      var offsetTop = this.offsetTop;
+      var offsetLeft = this.offsetLeft;
+
       if (rects.length > 0) {
         var rBounds = rects[0];
-        caret.style.top = rBounds.top + 'px';
-        caret.style.left = rBounds.left + 'px';
+        caret.style.top = (rBounds.top - offsetTop) + 'px';
+        caret.style.left = (rBounds.left - offsetLeft) + 'px';
         if (rBounds.width < 2) {
           caret.style.width = 4 + 'px';
         } else {
